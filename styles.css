@@ -1,0 +1,619 @@
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("fonts/pixelify-sans-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("fonts/pixelify-sans-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Toasted-bread OS. Windows are crumb-colored, title bars are crust. */
+:root {
+  --crumb: #f1dfb8;      /* window face */
+  --crumb-hi: #fff8e6;   /* bevel light */
+  --crumb-lo: #9b7a48;   /* bevel shade */
+  --crust: #8c3a12;      /* title bar */
+  --crust-glow: #e0892f; /* title bar fade */
+  --ink: #1d140a;
+  --paper: #fffdf6;
+  --butter: #ffd84a;
+  --jam: #b3123f;
+  --select: #2f4bff;
+  --sky-a: #ff8a3d;
+  --sky-b: #7b2cbf;
+  --sky-c: #2b0f4a;
+  --taskbar-h: 2.75rem;
+  --pixel: "Pixelify Sans", "Lucida Console", monospace;
+  --read: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--sky-c);
+  color: var(--ink);
+  font: 400 1rem/1.5 var(--read);
+  font-variant-ligatures: none; /* Pixelify's "fi" ligature renders as a stray glyph */
+}
+
+button { font: inherit; color: inherit; }
+a { color: var(--select); text-underline-offset: 0.15em; }
+a:visited { color: #6a2bb3; }
+
+:focus-visible {
+  outline: 2px dotted var(--ink);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+[hidden] { display: none !important; }
+
+/* Pixel icons are drawn by app.js into these spans */
+.ico {
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  line-height: 0;
+}
+.ico svg { width: 100%; height: 100%; shape-rendering: crispEdges; }
+
+/* Bevels */
+.raised {
+  background: var(--crumb);
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi),
+    inset -2px -2px 0 var(--crumb-lo), inset 2px 2px 0 var(--crumb);
+}
+.sunken {
+  background: var(--paper);
+  box-shadow: inset 1px 1px 0 var(--crumb-lo), inset -1px -1px 0 var(--crumb-hi),
+    inset 2px 2px 0 var(--ink), inset -2px -2px 0 var(--crumb);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 5.5rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.9rem;
+  border: 0;
+  background: var(--crumb);
+  font-family: var(--pixel);
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi),
+    inset -2px -2px 0 var(--crumb-lo), inset 2px 2px 0 var(--crumb);
+}
+.btn:visited { color: var(--ink); }
+.btn:active, .btn[aria-pressed="true"] {
+  box-shadow: inset 1px 1px 0 var(--ink), inset -1px -1px 0 var(--crumb-hi),
+    inset 2px 2px 0 var(--crumb-lo);
+  padding: 0.3rem 0.85rem 0.2rem 0.95rem;
+}
+
+/* ---------- Desktop ---------- */
+.desktop {
+  position: fixed;
+  inset: 0 0 var(--taskbar-h) 0;
+  overflow: hidden;
+  /* Sunset over the Blue Ridge, rendered on a cheap graphics card */
+  background:
+    radial-gradient(circle at 78% 72%, var(--butter) 0 7%, transparent 7.2%),
+    linear-gradient(transparent 70%, rgb(43 15 74 / 0) 70%),
+    linear-gradient(to bottom, var(--sky-c) 0%, var(--sky-b) 38%, var(--sky-a) 72%, #ffb35c 100%);
+}
+
+/* Ordered-dither overlay so the gradient bands like it's 1998 */
+.desktop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(45deg, rgb(0 0 0 / 0.12) 25%, transparent 25%, transparent 75%, rgb(0 0 0 / 0.12) 75%),
+    linear-gradient(45deg, rgb(0 0 0 / 0.12) 25%, transparent 25%, transparent 75%, rgb(0 0 0 / 0.12) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+  pointer-events: none;
+}
+
+/* Mountains */
+.desktop::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 32%;
+  background: #2b0f4a;
+  clip-path: polygon(0 55%, 8% 35%, 16% 50%, 27% 18%, 37% 46%, 46% 30%, 55% 52%, 66% 22%, 76% 44%, 85% 28%, 93% 48%, 100% 36%, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+.icons {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 5.75rem);
+  grid-auto-columns: 6.25rem;
+  gap: 0.25rem;
+  height: 100%;
+  margin: 0;
+  padding: 0.75rem;
+  list-style: none;
+  width: max-content;
+}
+
+.icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.35rem 0.2rem;
+  border: 0;
+  background: none;
+  color: var(--paper);
+  font: 400 0.9rem/1.15 var(--pixel);
+  text-align: center;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 var(--ink);
+}
+.icon-btn .ico { width: 40px; height: 40px; }
+.icon-btn .label { padding: 0 0.2rem; }
+.icon-btn[aria-selected="true"] .label,
+.icon-btn:focus-visible .label {
+  background: var(--select);
+  outline: 1px dotted var(--butter);
+  text-shadow: none;
+}
+.icon-btn:focus-visible { outline: none; }
+.icon-btn[aria-selected="true"] .ico { filter: drop-shadow(0 0 0 var(--select)) brightness(0.8) sepia(1) hue-rotate(190deg) saturate(3); }
+
+/* ---------- Windows ---------- */
+.windows { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+
+.win {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 16rem;
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100% - 1rem);
+  padding: 3px;
+  pointer-events: auto;
+  background: var(--crumb);
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi),
+    inset -2px -2px 0 var(--crumb-lo), inset 2px 2px 0 var(--crumb),
+    6px 6px 0 rgb(29 20 10 / 0.35);
+}
+.win.maxed {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 1.75rem;
+  padding: 0.15rem 0.2rem 0.15rem 0.35rem;
+  background: linear-gradient(90deg, var(--crust), var(--crust-glow));
+  color: var(--paper);
+  font: 700 0.95rem/1 var(--pixel);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.win:not(.active) .titlebar { background: linear-gradient(90deg, #8a7a66, #c4b49a); color: #f3eadb; }
+.titlebar:active { cursor: grabbing; }
+.titlebar h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tb-btn {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 0;
+  background: var(--crumb);
+  color: var(--ink);
+  font: 700 0.85rem/1 var(--pixel);
+  cursor: pointer;
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi), inset -2px -2px 0 var(--crumb-lo);
+}
+.tb-btn:active { box-shadow: inset 1px 1px 0 var(--ink), inset -1px -1px 0 var(--crumb-hi); }
+
+.menubar {
+  display: flex;
+  gap: 1rem;
+  padding: 0.2rem 0.4rem;
+  font: 400 0.9rem/1.4 var(--pixel);
+}
+.menubar span:first-letter { text-decoration: underline; }
+
+.win-body {
+  flex: 1;
+  min-height: 0;
+  margin: 2px;
+  overflow: auto;
+}
+
+.statusbar {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+  font: 400 0.85rem/1.4 var(--pixel);
+}
+.statusbar span {
+  flex: 1;
+  padding: 0.1rem 0.4rem;
+  box-shadow: inset 1px 1px 0 var(--crumb-lo), inset -1px -1px 0 var(--crumb-hi);
+}
+
+/* Breadpad (about_me.txt) */
+.notepad {
+  padding: 1rem 1.25rem 1.5rem;
+  font: 400 1.05rem/1.6 var(--read);
+}
+.notepad p { max-width: 60ch; margin: 0 0 0.9rem; }
+.notepad .sig { font-family: var(--pixel); }
+
+/* Explorer folders */
+.explorer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  align-content: start;
+  gap: 0.5rem;
+  min-height: 100%;
+  margin: 0;
+  padding: 0.75rem;
+  list-style: none;
+}
+.explorer .icon-btn {
+  color: var(--ink);
+  text-shadow: none;
+}
+.explorer .icon-btn .ico { width: 36px; height: 36px; }
+.explorer .icon-btn[aria-selected="true"] .label,
+.explorer .icon-btn:focus-visible .label { color: var(--paper); }
+
+/* Item (properties-style) window */
+.props { padding: 0.75rem; }
+.props-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.props-head .ico { width: 32px; height: 32px; }
+.props-head h3 {
+  margin: 0;
+  font: 700 clamp(1.4rem, 4vw, 1.9rem)/1.05 var(--pixel);
+}
+.props-head p { margin: 0.15rem 0 0; font-size: 0.9rem; }
+
+.photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 0.75rem;
+  object-fit: cover;
+  background: var(--ink);
+}
+.photo-missing {
+  display: grid;
+  place-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  color: var(--butter);
+  font: 400 1rem/1.35 var(--pixel);
+  text-align: center;
+  background:
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 4px),
+    #22162b;
+}
+.photo-missing .ico { width: 48px; height: 48px; margin: 0 auto; }
+.photo-missing small { color: #e8d9ff; font-size: 0.85rem; }
+
+.facts {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+}
+.facts div {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+.facts dt { font: 700 0.95rem/1.5 var(--pixel); }
+.facts dd { margin: 0; }
+.blurb { max-width: 60ch; margin: 0 0 0.9rem; font-size: 1.05rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; }
+
+/* Contact */
+.mail { padding: 0.75rem; }
+.mail-row {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  font-family: var(--pixel);
+}
+.mail-row output { padding: 0.25rem 0.5rem; overflow-wrap: anywhere; font-family: var(--read); }
+.mail-body { margin: 0.5rem 0 0.75rem; padding: 0.75rem 0.9rem; }
+.mail-body p { margin: 0 0 0.6rem; max-width: 55ch; }
+.mail .actions { justify-content: flex-start; }
+
+/* Trash */
+.trash-list { margin: 0; padding: 0.5rem; list-style: none; }
+.trash-list li {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 0.25rem 0.6rem;
+  padding: 0.5rem;
+  border-bottom: 1px dotted var(--crumb-lo);
+}
+.trash-list b { font: 700 0.95rem/1.3 var(--pixel); }
+.trash-list span:last-child { grid-column: 2; font-size: 0.95rem; }
+
+/* Error dialogs */
+.dialog { padding: 1rem 1rem 0.75rem; }
+.dialog-msg { display: flex; gap: 0.9rem; align-items: flex-start; margin-bottom: 1rem; }
+.dialog-msg .ico { width: 32px; height: 32px; }
+.dialog-msg p { margin: 0; max-width: 34ch; }
+.dialog .actions { justify-content: center; }
+.win.shake { animation: shake 360ms steps(6) 1; }
+@keyframes shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -6px 0; }
+  40% { translate: 6px 0; }
+  60% { translate: -4px 0; }
+  80% { translate: 4px 0; }
+}
+
+/* ---------- Taskbar ---------- */
+.taskbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: var(--taskbar-h);
+  padding: 0.3rem;
+  background: var(--crumb);
+  box-shadow: inset 0 1px 0 var(--crumb-hi), inset 0 2px 0 var(--crumb);
+  font-family: var(--pixel);
+}
+.bread-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 100%;
+  padding: 0 0.7rem 0 0.5rem;
+  border: 0;
+  background: var(--crumb);
+  font: 700 1rem/1 var(--pixel);
+  cursor: pointer;
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi), inset -2px -2px 0 var(--crumb-lo);
+}
+.bread-btn .ico { width: 22px; height: 22px; }
+.bread-btn[aria-expanded="true"] { box-shadow: inset 1px 1px 0 var(--ink), inset -1px -1px 0 var(--crumb-hi); }
+
+.task-buttons {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.task-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 1 11rem;
+  min-width: 2.5rem;
+  height: 100%;
+  padding: 0 0.5rem;
+  border: 0;
+  background: var(--crumb);
+  font: 400 0.85rem/1 var(--pixel);
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi), inset -2px -2px 0 var(--crumb-lo);
+}
+.task-btn span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-btn[aria-pressed="true"] {
+  background: repeating-conic-gradient(var(--crumb) 0 25%, var(--crumb-hi) 0 50%) 0 0 / 2px 2px;
+  box-shadow: inset 1px 1px 0 var(--ink), inset -1px -1px 0 var(--crumb-hi);
+}
+
+.tray {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 0 0.6rem;
+  box-shadow: inset 1px 1px 0 var(--crumb-lo), inset -1px -1px 0 var(--crumb-hi);
+  font-size: 0.9rem;
+}
+
+/* ---------- Bread menu ---------- */
+.bread-menu {
+  position: fixed;
+  left: 0.3rem;
+  bottom: calc(var(--taskbar-h) - 0.1rem);
+  z-index: 60;
+  display: flex;
+  padding: 3px;
+  background: var(--crumb);
+  box-shadow: inset -1px -1px 0 var(--ink), inset 1px 1px 0 var(--crumb-hi),
+    inset -2px -2px 0 var(--crumb-lo), 4px 4px 0 rgb(29 20 10 / 0.35);
+}
+.bread-menu-side {
+  display: flex;
+  align-items: flex-end;
+  width: 2rem;
+  background: linear-gradient(0deg, var(--crust), var(--sky-b));
+  color: var(--paper);
+}
+.bread-menu-side span {
+  padding: 0.5rem 0;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  font: 400 1.3rem/2rem var(--pixel);
+}
+.bread-menu-side b { color: var(--butter); }
+.bread-menu ul { margin: 0; padding: 0; list-style: none; min-width: 13rem; }
+.bread-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  font: 400 1rem/1.2 var(--pixel);
+  text-align: left;
+  cursor: pointer;
+}
+.bread-menu button .ico { width: 24px; height: 24px; }
+.bread-menu button:hover, .bread-menu button:focus-visible {
+  background: var(--select);
+  color: var(--paper);
+  outline: none;
+}
+.bread-menu .sep { height: 2px; margin: 0.25rem 0.3rem; box-shadow: inset 0 1px 0 var(--crumb-lo), inset 0 -1px 0 var(--crumb-hi); }
+
+/* ---------- Boot, screensaver, shutdown ---------- */
+.boot, .shutdown, .screensaver {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  color: #d8d8d8;
+}
+.boot { padding: clamp(1rem, 4vw, 2.5rem); cursor: pointer; }
+.boot-text {
+  margin: 0;
+  font: 400 clamp(0.95rem, 2.4vw, 1.2rem)/1.45 var(--pixel);
+  white-space: pre-wrap;
+}
+.boot-skip {
+  position: absolute;
+  left: clamp(1rem, 4vw, 2.5rem);
+  bottom: 1.5rem;
+  margin: 0;
+  color: #8a8a8a;
+  font: 400 0.95rem/1 var(--pixel);
+}
+
+.screensaver { cursor: none; overflow: hidden; }
+.saver-loaf {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--butter);
+  font: 700 2rem/1 var(--pixel);
+  will-change: transform;
+}
+.saver-loaf .ico { width: 64px; height: 64px; }
+
+.shutdown {
+  display: grid;
+  place-content: center;
+  padding: 1.5rem;
+  color: var(--sky-a);
+  text-align: center;
+  cursor: pointer;
+}
+.shutdown p { margin: 0; font: 400 clamp(1.5rem, 5vw, 2.6rem)/1.2 var(--pixel); }
+.shutdown .shutdown-small { margin-top: 1.25rem; color: #9a6a3a; font-size: 1rem; }
+
+.noscript {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  padding: 2rem;
+  overflow: auto;
+  background: var(--crumb);
+}
+.noscript h2 { font-family: var(--pixel); }
+
+/* ---------- Phones: windows become full-screen sheets ---------- */
+@media (max-width: 40rem) {
+  .icons {
+    grid-auto-flow: row;
+    grid-template-rows: none;
+    grid-template-columns: repeat(auto-fill, minmax(5.25rem, 1fr));
+    grid-auto-rows: 5.75rem;
+    width: auto;
+    height: auto;
+  }
+  .win, .win.maxed {
+    left: 0.25rem !important;
+    top: 0.25rem !important;
+    width: calc(100% - 0.5rem) !important;
+    height: calc(100% - 0.5rem) !important;
+    max-width: none;
+  }
+  .win.dialog-win { height: auto !important; top: 20% !important; }
+  .tb-max { display: none; }
+  .titlebar { cursor: default; }
+  .facts div { grid-template-columns: 1fr; gap: 0; }
+  .task-btn { flex-basis: 2.5rem; }
+  .task-btn span:last-child { display: none; }
+  .bread-btn { font-size: 0.95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win.shake { animation: none; }
+}

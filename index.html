@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MichaelOS 98</title>
+  <meta name="description" content="Michael Barnes (Papabread): IT guy, app builder, and maker of things that beep, blink, or make fart noises.">
+  <meta name="theme-color" content="#8c3a12">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/pixelify-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Boot screen: plays once per visit, any key or tap skips it -->
+  <div id="boot" class="boot" role="status" aria-live="polite" hidden>
+    <pre id="boot-text" class="boot-text"></pre>
+    <p class="boot-skip">Press any key or tap to skip</p>
+  </div>
+
+  <main id="desktop" class="desktop" aria-label="MichaelOS desktop">
+    <h1 class="sr-only">Michael Barnes, also known as Papabread</h1>
+    <ul id="icons" class="icons" aria-label="Desktop icons"></ul>
+    <div id="windows" class="windows"></div>
+  </main>
+
+  <nav id="taskbar" class="taskbar" aria-label="Taskbar">
+    <button id="bread-btn" class="bread-btn" aria-haspopup="true" aria-expanded="false" aria-controls="bread-menu">
+      <span class="ico" data-icon="bread"></span>Bread
+    </button>
+    <div id="task-buttons" class="task-buttons"></div>
+    <div class="tray">
+      <span class="ico tray-ico" data-icon="speaker" title="Volume: fart machine is muted"></span>
+      <time id="clock" class="clock" title="It's always 3:47 somewhere"></time>
+    </div>
+  </nav>
+
+  <div id="bread-menu" class="bread-menu" hidden>
+    <div class="bread-menu-side"><span>MichaelOS<b>98</b></span></div>
+    <ul role="menu">
+      <li role="none"><button role="menuitem" data-open="about"><span class="ico" data-icon="doc"></span>About me</button></li>
+      <li role="none"><button role="menuitem" data-open="projects"><span class="ico" data-icon="folder"></span>Software projects</button></li>
+      <li role="none"><button role="menuitem" data-open="builds"><span class="ico" data-icon="wrench"></span>Real-life builds</button></li>
+      <li role="none"><button role="menuitem" data-open="contact"><span class="ico" data-icon="mail"></span>Contact</button></li>
+      <li role="none" class="sep"></li>
+      <li role="none"><button role="menuitem" data-action="error"><span class="ico" data-icon="warn"></span>Break something</button></li>
+      <li role="none"><button role="menuitem" data-action="screensaver"><span class="ico" data-icon="bread"></span>Screensaver</button></li>
+      <li role="none"><button role="menuitem" data-action="shutdown"><span class="ico" data-icon="power"></span>Shut down...</button></li>
+    </ul>
+  </div>
+
+  <div id="screensaver" class="screensaver" hidden><div id="saver-loaf" class="saver-loaf"><span class="ico" data-icon="bread"></span><span>Papabread</span></div></div>
+
+  <div id="shutdown" class="shutdown" hidden>
+    <p>It's now safe to turn off your computer.</p>
+    <p class="shutdown-small">Or click anywhere to boot it back up. Michael would.</p>
+  </div>
+
+  <noscript>
+    <div class="noscript">
+      <h2>MichaelOS needs JavaScript to boot.</h2>
+      <p>I'm Michael Barnes (Papabread): 25+ years in IT, owner of <a href="https://tengusolutions.tech">Tengu Solutions</a>, builder of apps and of things that beep.</p>
+      <p>Email me at <a href="mailto:hello@michaelbarnes.xyz">hello@michaelbarnes.xyz</a> or find me on <a href="https://github.com/barnes0003">GitHub</a>.</p>
+    </div>
+  </noscript>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
