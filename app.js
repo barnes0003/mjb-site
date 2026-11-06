@@ -547,7 +547,11 @@
     store("mos-booted", "1");
     apps.about();
     // One unsolicited error per visit, once they've had a moment to look around
-    setTimeout(() => { if (shutdownEl.hidden) popError(D.errors[0]); }, 25000);
+    // ...but never while they're writing to Michael: skip it if the contact form is open
+    setTimeout(() => {
+      const contactOpen = open.has("contact") && !open.get("contact").win.hidden;
+      if (shutdownEl.hidden && !contactOpen) popError(D.errors[0]);
+    }, 25000);
   }
 
   /* ---------- Shut down ---------- */
