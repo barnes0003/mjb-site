@@ -1,0 +1,24 @@
+// Cloudflare Worker config for michaelbarnes.xyz
+{
+  "name": "mjb-site",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-10-01",
+
+  // The site's files. .assetsignore keeps config and server code from being served.
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+
+  // Contact form email. Can only send to this address, which must be a verified
+  // destination address under Email Routing.
+  "send_email": [
+    { "name": "EMAIL", "destination_address": "michaelbarnes0@gmail.com" }
+  ],
+
+  "vars": {
+    "EMAIL_TO": "michaelbarnes0@gmail.com"
+  },
+
+  "observability": { "enabled": true }
+}

@@ -202,18 +202,7 @@
     projects() { folder("projects", "Software projects", D.projects, "app"); },
     builds() { folder("builds", "Real-life builds", D.builds, "chip"); },
 
-    contact() {
-      const body = el("div", { class: "mail" },
-        el("div", { class: "mail-row" }, el("span", { text: "To:" }), el("output", { class: "sunken", text: D.email })),
-        el("div", { class: "mail-row" }, el("span", { text: "Subject:" }), el("output", { class: "sunken", text: "I saw your website and I have questions" })),
-        el("div", { class: "mail-body sunken" },
-          el("p", { text: "Want help with a project, have a question about something I built, or just want to tell me the fart machine changed your life? Send me an email." }),
-          el("p", { text: "For IT work, like computer repair, networks, apps, or getting off Windows, Tengu Solutions is the way to go." })),
-        el("div", { class: "actions" },
-          el("a", { class: "btn", href: "mailto:" + D.email }, icon("mail"), "Send email"),
-          D.links.map((l) => el("a", { class: "btn", href: l.href, target: "_blank", rel: "noopener" }, icon("link"), l.label))));
-      makeWindow("contact", { title: "New message", iconName: "mail", body, width: 34, menubar: ["File", "Edit", "Insert", "Help"] });
-    },
+    contact() { openContact(); },
 
     trash() {
       const body = el("ul", { class: "trash-list" },
@@ -224,6 +213,101 @@
       });
     },
   };
+
+  /* ---------- Contact form: posts to /api/contact, which emails Michael ---------- */
+  const TURNSTILE_TEST_KEY = "1x00000000000000000000AA"; // Cloudflare's always-pass key, for localhost
+  let turnstileLoad = null;
+  function loadTurnstile() {
+    if (!turnstileLoad) {
+      turnstileLoad = new Promise((resolve, reject) => {
+        const sc = document.createElement("script");
+        sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        sc.async = true;
+        sc.onload = () => resolve(window.turnstile);
+        sc.onerror = () => { turnstileLoad = null; reject(new Error("turnstile")); };
+        document.head.append(sc);
+      });
+    }
+    return turnstileLoad;
+  }
+
+  function openContact() {
+    if (open.has("contact")) { makeWindow("contact", {}); return; }
+    let token = "", widgetId = null;
+    const field = (label, input) => el("label", { class: "field" }, el("span", { text: label }), input);
+    const nameIn = el("input", { class: "sunken", name: "name", autocomplete: "name", maxlength: "100", required: true });
+    const emailIn = el("input", { class: "sunken", name: "email", type: "email", autocomplete: "email", maxlength: "200", required: true });
+    const msgIn = el("textarea", { class: "sunken", name: "message", rows: "6", maxlength: "5000", required: true,
+      placeholder: "Want help with a project, have a question about something I built, or just want to tell me the fart machine changed your life?" });
+    // Bots fill in every field; people never see this one
+    const trap = el("input", { name: "website", tabindex: "-1", autocomplete: "off" });
+    const human = el("div", { class: "turnstile" });
+    const sendBtn = el("button", { class: "btn", type: "submit" }, icon("mail"), "Send message");
+    const status = el("p", { class: "form-status", role: "status", "aria-live": "polite" });
+
+    const form = el("form", { class: "mail-form", novalidate: true },
+      el("div", { class: "mail-row" }, el("span", { text: "To:" }), el("output", { class: "sunken", text: "Michael" })),
+      field("Your name", nameIn),
+      field("Your email", emailIn),
+      field("Message", msgIn),
+      el("div", { class: "trap", "aria-hidden": "true" }, trap),
+      human,
+      el("div", { class: "actions" }, sendBtn,
+        D.links.map((l) => el("a", { class: "btn", href: l.href, target: "_blank", rel: "noopener" }, icon("link"), l.label))),
+      status,
+      el("p", { class: "form-note", text: "For IT work, like computer repair, networks, apps, or getting off Windows, Tengu Solutions is the way to go." }));
+
+    const siteKey = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? TURNSTILE_TEST_KEY : D.turnstileSiteKey;
+    loadTurnstile().then((ts) => {
+      if (!human.isConnected) return;
+      widgetId = ts.render(human, {
+        sitekey: siteKey,
+        appearance: "interaction-only",
+        callback: (t) => { token = t; },
+        "expired-callback": () => { token = ""; },
+        "error-callback": () => { token = ""; },
+      });
+    }).catch(() => { status.textContent = "The spam check couldn't load. Disable your ad blocker for this site, or email " + D.email + "."; });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      status.className = "form-status";
+      if (!nameIn.value.trim()) return fail("Add your name.", nameIn);
+      if (!emailIn.checkValidity() || !emailIn.value.trim()) return fail("That email address doesn't look right.", emailIn);
+      if (msgIn.value.trim().length < 2) return fail("Write a message first.", msgIn);
+      if (!token) return fail("Still checking that you're human. Try again in a second.");
+
+      sendBtn.disabled = true;
+      status.textContent = "Sending...";
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: nameIn.value, email: emailIn.value, message: msgIn.value, website: trap.value, token }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || "The message didn't send. Try again in a minute.");
+        form.replaceChildren(
+          el("div", { class: "dialog-msg sent" }, icon("mail"),
+            el("p", { text: "Message sent. Michael has been notified, and will reply to " + emailIn.value.trim() + " once he finds his glasses." })),
+          el("div", { class: "actions" }, el("button", { class: "btn", type: "button", onclick: () => closeWin("contact"), text: "OK" })));
+      } catch (err) {
+        fail(err.message);
+        token = "";
+        if (window.turnstile && widgetId !== null) window.turnstile.reset(widgetId);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+
+    function fail(msg, input) {
+      status.className = "form-status error";
+      status.textContent = msg;
+      if (input) input.focus();
+    }
+
+    makeWindow("contact", { title: "New message", iconName: "mail", body: form, width: 34, menubar: ["File", "Edit", "Insert", "Help"] });
+  }
 
   function folder(key, title, items, iconName) {
     const list = el("ul", { class: "explorer" },

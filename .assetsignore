@@ -1,0 +1,10 @@
+# Files that must never be served as part of the website
+.git
+.gitignore
+.assetsignore
+.dev.vars*
+.wrangler
+node_modules
+worker
+wrangler.jsonc
+README.md

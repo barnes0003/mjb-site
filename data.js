@@ -10,6 +10,8 @@ window.MOS_DATA = {
   owner: "Michael Barnes",
   handle: "Papabread",
   email: "hello@michaelbarnes.xyz",
+  // Public "site key" from Cloudflare Turnstile (the spam check on the contact form)
+  turnstileSiteKey: "0x4AAAAAAF109tKbCa8M7qBm",
 
   about: [
     "Hi. I'm Michael.",
