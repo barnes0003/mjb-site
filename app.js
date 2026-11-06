@@ -337,7 +337,7 @@
 
   /* ---------- Boot ---------- */
   const bootLines = [
-    "PapaBIOS (C) 1977-2026 Barnes Megatrends, Inc.",
+    "PapaBIOS (C) 1979-2026 Quino Soyez, Inc.",
     "",
     "Main processor : 1x Michael @ 3 cups of coffee",
     "Memory test    : 640K OK (should be enough for anybody)",
@@ -349,6 +349,10 @@
     "",
     "Checking bread......... 1 loaf found",
     "Loading MichaelOS 98...",
+	"ERROR",
+	"I am ERROR",
+	"ERROR is a silly name",
+	"Enough of this shenanigans, load the site already...",
   ];
   const boot = $("#boot"), bootText = $("#boot-text");
   let bootTimer = null;
