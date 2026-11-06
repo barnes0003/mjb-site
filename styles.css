@@ -55,8 +55,11 @@ body {
   background: var(--sky-c);
   color: var(--ink);
   font: 400 1rem/1.5 var(--read);
-  font-variant-ligatures: none; /* Pixelify's "fi" ligature renders as a stray glyph */
 }
+
+/* Pixelify's "fi" ligature looks like an A ("files" -> "Ales"). Every "font:" shorthand
+   resets ligatures, so this has to hit every element and win. */
+* { font-variant-ligatures: none !important; }
 
 /* click_to_run.exe turns the whole screen upside down */
 body { transition: rotate 500ms ease-in-out; }
@@ -163,6 +166,17 @@ a:visited { color: #6a2bb3; }
   pointer-events: none;
 }
 
+/* MJB star in the top-right of the desktop, matching the boot screen */
+.desk-logo {
+  position: absolute;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  z-index: 1;
+  width: clamp(72px, 9vw, 128px);
+  height: auto;
+  pointer-events: none;
+}
+
 .icons {
   position: relative;
   z-index: 1;
@@ -194,7 +208,11 @@ a:visited { color: #6a2bb3; }
   text-shadow: 1px 1px 0 var(--ink);
 }
 .icon-btn .ico { width: 40px; height: 40px; }
-.icon-btn .label { padding: 0 0.2rem; }
+.icon-btn .label {
+  max-width: 100%;
+  padding: 0 0.2rem;
+  overflow-wrap: break-word; /* last resort if a name is still too long for its column */
+}
 .icon-btn[aria-selected="true"] .label,
 .icon-btn:focus-visible .label {
   background: var(--select);
@@ -307,7 +325,7 @@ a:visited { color: #6a2bb3; }
 /* Explorer folders */
 .explorer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
   align-content: start;
   gap: 0.5rem;
   min-height: 100%;
@@ -393,6 +411,14 @@ a:visited { color: #6a2bb3; }
 .mail-body { margin: 0.5rem 0 0.75rem; padding: 0.75rem 0.9rem; }
 .mail-body p { margin: 0 0 0.6rem; max-width: 55ch; }
 .mail .actions { justify-content: flex-start; }
+
+/* Fake progress bar (New folder) */
+.progress { height: 1.4rem; margin: 0 0 0.75rem; padding: 3px; }
+.progress-fill {
+  width: 0;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--select) 0 10px, transparent 10px 12px);
+}
 
 /* Trash */
 .trash-list { margin: 0; padding: 0.5rem; list-style: none; }
@@ -550,6 +576,14 @@ a:visited { color: #6a2bb3; }
   font: 400 clamp(0.95rem, 2.4vw, 1.2rem)/1.45 var(--pixel);
   white-space: pre-wrap;
 }
+/* MJB star in the corner, where old PCs put their maker's logo */
+.boot-logo {
+  position: absolute;
+  top: clamp(1rem, 4vw, 2.5rem);
+  right: clamp(1rem, 4vw, 2.5rem);
+  width: clamp(72px, 11vw, 128px);
+  height: auto;
+}
 .boot-skip {
   position: absolute;
   left: clamp(1rem, 4vw, 2.5rem);
@@ -610,6 +644,9 @@ a:visited { color: #6a2bb3; }
     max-width: none;
   }
   .win.dialog-win { height: auto !important; top: 20% !important; }
+  .boot-logo { position: static; display: block; width: 72px; margin-bottom: 1rem; }
+  /* Icons fill the top on phones, so the star moves down over the mountains */
+  .desk-logo { top: auto; bottom: 1rem; width: 64px; }
   .tb-max { display: none; }
   .titlebar { cursor: default; }
   .facts div { grid-template-columns: 1fr; gap: 0; }

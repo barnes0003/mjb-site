@@ -173,7 +173,10 @@
 
   /* ---------- Icon buttons (desktop + folders) ---------- */
   function iconButton({ label, iconName, onOpen }) {
-    const b = el("button", { class: "icon-btn", "aria-selected": "false" }, icon(iconName), el("span", { class: "label", text: label }));
+    // Allow line breaks only after "_" or before ".ext", so long file names wrap neatly
+    const labelEl = el("span", { class: "label" });
+    label.split(/(?<=_)|(?=\.[^.]+$)/).forEach((part, i) => { if (i) labelEl.append(el("wbr")); labelEl.append(part); });
+    const b = el("button", { class: "icon-btn", "aria-selected": "false" }, icon(iconName), labelEl);
     b.addEventListener("click", () => {
       const scope = b.closest("ul");
       scope.querySelectorAll(".icon-btn").forEach((x) => x.setAttribute("aria-selected", x === b ? "true" : "false"));
@@ -306,6 +309,51 @@
     }, 4000);
   }
 
+  /* ---------- New folder: a totally normal folder ---------- */
+  const RICK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  function openNewFolder() {
+    const key = "newfolder";
+    if (open.has(key)) return;
+    const fill = el("div", { class: "progress-fill" });
+    const msg = el("p", { text: "Opening New folder..." });
+    const body = el("div", { class: "dialog" },
+      el("div", { class: "dialog-msg" }, icon("folder"), msg),
+      el("div", { class: "progress sunken" }, fill));
+    makeWindow(key, { title: "New folder", iconName: "folder", body, width: 24, dialog: true });
+    let pct = 0;
+    const timer = setInterval(() => {
+      if (!open.has(key)) { clearInterval(timer); return; } // closed early: no Rick for you
+      pct = Math.min(100, pct + 5 + Math.random() * 10);
+      fill.style.width = pct + "%";
+      if (pct < 100) return;
+      clearInterval(timer);
+      const tab = window.open(RICK, "_blank");
+      if (tab) { tab.opener = null; closeWin(key); return; }
+      // Popup blocked: hand them a real link to click instead
+      msg.textContent = "New folder is ready.";
+      body.append(el("div", { class: "actions" },
+        el("a", { class: "btn", href: RICK, target: "_blank", rel: "noopener", onclick: () => closeWin(key) }, "Open")));
+    }, 120);
+  }
+
+  /* ---------- New folder (1): secret files, decoys included ---------- */
+  const secretItems = [
+    { label: "Secret files", iconName: "folder" },
+    { label: "passwords.txt", iconName: "doc" },
+    { label: "diary_DO_NOT_READ.txt", iconName: "doc" },
+    { label: "definitely_not_secrets.zip", iconName: "app" },
+  ];
+  const snoop = { title: "Secret files", text: "Stop snooping!", buttons: ["I'm sorry"] };
+  function openSecretFolder() {
+    const list = el("ul", { class: "explorer" },
+      secretItems.map((it) => el("li", {}, iconButton({ label: it.label, iconName: it.iconName, onOpen: () => popError(snoop) }))));
+    makeWindow("newfolder1", {
+      title: "New folder (1)", iconName: "folder", body: list, width: 30, height: 18,
+      menubar: ["File", "Edit", "View", "Help"],
+      status: [secretItems.length + " objects", "Nothing to see here"],
+    });
+  }
+
   /* ---------- Desktop ---------- */
   const desktopIcons = [
     { label: "about_me.txt", iconName: "doc", app: "about" },
@@ -315,6 +363,8 @@
     { label: "Trash", iconName: "trash", app: "trash" },
     { label: "DO NOT CLICK.exe", iconName: "warn", action: () => popError() },
     { label: "click_to_run.exe", iconName: "app", action: () => flipOut() },
+    { label: "New folder", iconName: "folder", action: () => openNewFolder() },
+    { label: "New folder (1)", iconName: "folder", action: () => openSecretFolder() },
   ];
   const iconList = $("#icons");
   desktopIcons.forEach((d) => iconList.append(el("li", {}, iconButton({
