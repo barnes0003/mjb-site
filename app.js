@@ -279,6 +279,33 @@
     if (!reduceMotion) { w.classList.add("shake"); w.addEventListener("animationend", () => w.classList.remove("shake"), { once: true }); }
   }
 
+  /* ---------- click_to_run.exe: flips the screen and panics for 4 seconds ---------- */
+  const flipWarnings = [
+    { title: "Gravity", text: "Gravity driver has stopped responding.", buttons: ["OK"] },
+    { title: "Display", text: "Monitor is installed upside down. Please turn your computer over.", buttons: ["OK"] },
+    { title: "Bread", text: "Warning: toast has landed butter side down.", buttons: ["OK"] },
+    { title: "Location", text: "Australia mode enabled. G'day.", buttons: ["OK"] },
+    { title: "System", text: "Down is now up. Up has been notified.", buttons: ["OK"] },
+    { title: "click_to_run.exe", text: "It ran. You're welcome.", buttons: ["OK"] },
+  ];
+  let flipping = false;
+  function flipOut() {
+    if (flipping) return;
+    flipping = true;
+    const keys = [];
+    // Reduced-motion visitors get the warnings without the spin
+    if (!reduceMotion) document.body.classList.add("flipped");
+    flipWarnings.forEach((w, i) => setTimeout(() => {
+      keys.push("err" + errCount);
+      popError(w);
+    }, 400 + i * 550));
+    setTimeout(() => {
+      keys.forEach(closeWin);
+      document.body.classList.remove("flipped");
+      flipping = false;
+    }, 4000);
+  }
+
   /* ---------- Desktop ---------- */
   const desktopIcons = [
     { label: "about_me.txt", iconName: "doc", app: "about" },
@@ -287,6 +314,7 @@
     { label: "Contact", iconName: "mail", app: "contact" },
     { label: "Trash", iconName: "trash", app: "trash" },
     { label: "DO NOT CLICK.exe", iconName: "warn", action: () => popError() },
+    { label: "click_to_run.exe", iconName: "app", action: () => flipOut() },
   ];
   const iconList = $("#icons");
   desktopIcons.forEach((d) => iconList.append(el("li", {}, iconButton({

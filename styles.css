@@ -58,6 +58,10 @@ body {
   font-variant-ligatures: none; /* Pixelify's "fi" ligature renders as a stray glyph */
 }
 
+/* click_to_run.exe turns the whole screen upside down */
+body { transition: rotate 500ms ease-in-out; }
+body.flipped { rotate: 180deg; }
+
 button { font: inherit; color: inherit; }
 a { color: var(--select); text-underline-offset: 0.15em; }
 a:visited { color: #6a2bb3; }
@@ -616,4 +620,5 @@ a:visited { color: #6a2bb3; }
 
 @media (prefers-reduced-motion: reduce) {
   .win.shake { animation: none; }
+  body { transition: none; }
 }
