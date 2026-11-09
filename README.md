@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/mjb-logo.png" width="160" alt="MJB logo">
+</p>
+
 # mjb-site
 
 MichaelOS 98: the personal site at michaelbarnes.xyz. Static files with no build step, served by a Cloudflare Worker

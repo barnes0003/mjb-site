@@ -627,7 +627,7 @@ a:visited { color: #6a2bb3; }
   font: 700 2rem/1 var(--pixel);
   will-change: transform;
 }
-.saver-loaf .ico { width: 64px; height: 64px; }
+.saver-logo { display: block; width: clamp(96px, 14vw, 160px); height: auto; }
 
 .shutdown {
   display: grid;

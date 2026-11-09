@@ -369,11 +369,11 @@
   /* ---------- click_to_run.exe: flips the screen and panics for 4 seconds ---------- */
   const flipWarnings = [
     { title: "Gravity", text: "Gravity driver has stopped responding.", buttons: ["OK"] },
-    { title: "Display", text: "Monitor is installed upside down. Please turn your computer over.", buttons: ["OK"] },
-    { title: "Bread", text: "Warning: toast has landed butter side down.", buttons: ["OK"] },
+    { title: "Display", text: "Monitor is installed upside down. Please turn your computer over.", buttons: ["OK","KO"] },
+    { title: "Bread", text: "Warning: toast has landed butter side down. Tape to cat next time.", buttons: ["OK","What?!"] },
     { title: "Location", text: "Australia mode enabled. G'day.", buttons: ["OK"] },
-    { title: "System", text: "Down is now up. Up has been notified.", buttons: ["OK"] },
-    { title: "click_to_run.exe", text: "It ran. You're welcome.", buttons: ["OK"] },
+    { title: "System", text: "Down is now up. Up has been notified. Down is mad", buttons: ["asdfklja","No"] },
+    { title: "click_to_run.exe", text: "It ran. Thank you for your donation.", buttons: ["Transfer funds to Michael"] },
   ];
   let flipping = false;
   function flipOut() {
@@ -393,7 +393,7 @@
     }, 4000);
   }
 
-  /* ---------- New folder: a totally normal folder ---------- */
+  /* ---------- New folder: RR surprise ---------- */
   const RICK = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
   function openNewFolder() {
     const key = "newfolder";
@@ -427,7 +427,7 @@
     { label: "diary_DO_NOT_READ.txt", iconName: "doc" },
     { label: "definitely_not_secrets.zip", iconName: "app" },
   ];
-  const snoop = { title: "Secret files", text: "Stop snooping!", buttons: ["I'm sorry"] };
+  const snoop = { title: "Secret files", text: "Stop snooping!", buttons: ["I'm sorry","Pay $99.95"] };
   function openSecretFolder() {
     const list = el("ul", { class: "explorer" },
       secretItems.map((it) => el("li", {}, iconButton({ label: it.label, iconName: it.iconName, onOpen: () => popError(snoop) }))));
@@ -514,7 +514,7 @@
 	"ERROR",
 	"I am ERROR",
 	"ERROR is a silly name",
-	"Enough of this shenanigans, load the site already...",
+	"Enough of the shenanigans, load the site already...",
   ];
   const boot = $("#boot"), bootText = $("#boot-text");
   let bootTimer = null;
