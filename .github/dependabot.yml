@@ -1,0 +1,22 @@
+# Dependabot version updates (Phase 1 step 3 of the AppSec pipeline).
+# Alerts + security updates are turned on in this repo's Settings (barnes0003 personal account).
+# Static site + Worker with no npm packages: only GitHub Actions pins to keep current (SHA pins + "# vX.Y.Z" comments,
+# including the reusable security-workflows pin).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "20:00"
+      timezone: "America/New_York"
+    # Wait 7 days after a release before proposing it (matches min-release-age=7)
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "deps(actions)"
