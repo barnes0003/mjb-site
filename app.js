@@ -202,6 +202,8 @@
     projects() { folder("projects", "Software projects", D.projects, "app"); },
     builds() { folder("builds", "Real-life builds", D.builds, "chip"); },
 
+    blog() { openBlog(); },
+
     contact() { openContact(); },
 
     trash() {
@@ -348,6 +350,77 @@
     makeWindow(group + ":" + it.id, { title: it.name + " Properties", iconName, body, width: 30 });
   }
 
+  /* ---------- Blog ---------- */
+  // Posts come from blog/posts.json, which scripts/build-blog.mjs makes from posts/*.md on deploy.
+  let blogPosts = null;
+  function loadPosts() {
+    if (!blogPosts) {
+      blogPosts = fetch("/blog/posts.json", { cache: "no-cache" })
+        .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .catch((err) => { blogPosts = null; throw err; });
+    }
+    return blogPosts;
+  }
+
+  const postFile = (p) => p.slug.replace(/-/g, "_") + ".txt";
+
+  function openBlog(slug) {
+    loadPosts().then((posts) => {
+      if (slug) {
+        const p = posts.find((x) => x.slug === slug);
+        if (p) return openPost(p);
+        popError({ title: "Blog", text: `Cannot find ${slug.replace(/-/g, "_")}.txt. Michael may have eaten it.`, buttons: ["OK"] });
+      }
+      const body = posts.length
+        ? el("ul", { class: "explorer" }, posts.map((p) =>
+            el("li", { title: `${p.title} (${p.dateText})` }, iconButton({ label: postFile(p), iconName: "doc", onOpen: () => openPost(p) }))))
+        : el("div", { class: "notepad" }, el("p", { text: "No posts yet. Michael is \"working on it.\"" }));
+      makeWindow("blog", {
+        title: "Blog", iconName: "folder", body, width: 36, height: 24,
+        menubar: ["File", "Edit", "View", "Help"],
+        status: [posts.length + (posts.length === 1 ? " post" : " posts"), "Newest first"],
+      });
+    }).catch((err) => {
+      console.error("blog failed to load:", err);
+      popError({ title: "Blog.exe", text: "Blog.exe has stopped working. Try again in a minute.", buttons: ["OK"] });
+    });
+  }
+
+  function openPost(p) {
+    const article = el("article", { class: "bp-post" },
+      el("h1", { text: p.title }),
+      el("p", { class: "bp-date" }, el("time", { datetime: p.date, text: p.dateText })));
+    // Safe to insert: build-blog.mjs escapes every bit of post text and only allows its own tags
+    const content = document.createElement("template");
+    content.innerHTML = p.html;
+    article.append(content.content);
+
+    const link = location.origin + "/blog/" + p.slug + "/";
+    const copyBtn = el("button", { class: "btn", text: "Copy link" });
+    copyBtn.addEventListener("click", () => {
+      const done = (msg) => { copyBtn.textContent = msg; setTimeout(() => { copyBtn.textContent = "Copy link"; }, 2000); };
+      if (!navigator.clipboard) return done("Can't copy here");
+      navigator.clipboard.writeText(link).then(() => done("Copied!"), () => done("Can't copy here"));
+    });
+
+    const body = el("div", { class: "notepad" }, article,
+      el("div", { class: "actions" },
+        el("a", { class: "btn", href: "/blog/" + p.slug + "/", target: "_blank", rel: "noopener" }, icon("link"), "Shareable page"),
+        copyBtn));
+    makeWindow("blog:" + p.slug, {
+      title: postFile(p) + " - Breadpad", iconName: "doc", body, width: 44, height: 34,
+      menubar: ["File", "Edit", "Search", "Help"],
+    });
+  }
+
+  // Links like michaelbarnes.xyz/#blog or /#blog/my-post open the Blog folder or a post
+  function openFromHash() {
+    const m = location.hash.match(/^#blog(?:\/([a-z0-9-]+))?\/?$/);
+    if (!m) return false;
+    openBlog(m[1]);
+    return true;
+  }
+
   /* ---------- Error popups ---------- */
   let errCount = 0;
   function popError(err) {
@@ -443,6 +516,7 @@
     { label: "about_me.txt", iconName: "doc", app: "about" },
     { label: "Software projects", iconName: "folder", app: "projects" },
     { label: "Real-life builds", iconName: "folder", app: "builds" },
+    { label: "Blog", iconName: "folder", app: "blog" },
     { label: "Contact", iconName: "mail", app: "contact" },
     { label: "Trash", iconName: "trash", app: "trash" },
     { label: "DO NOT CLICK.exe", iconName: "warn", action: () => popError() },
@@ -545,12 +619,13 @@
 
   function afterBoot() {
     store("mos-booted", "1");
-    apps.about();
+    if (!openFromHash()) apps.about();
+    window.addEventListener("hashchange", openFromHash);
     // One unsolicited error per visit, once they've had a moment to look around
-    // ...but never while they're writing to Michael: skip it if the contact form is open
+    // ...but never while they're writing to Michael or reading a blog post
     setTimeout(() => {
-      const contactOpen = open.has("contact") && !open.get("contact").win.hidden;
-      if (shutdownEl.hidden && !contactOpen) popError(D.errors[0]);
+      const busy = [...open].some(([k, o]) => (k === "contact" || k.startsWith("blog:")) && !o.win.hidden);
+      if (shutdownEl.hidden && !busy) popError(D.errors[0]);
     }, 25000);
   }
 

@@ -4,6 +4,13 @@
   "main": "worker/index.js",
   "compatibility_date": "2025-10-01",
 
+  // Builds the blog (posts/*.md -> blog/) before every deploy and before "wrangler dev".
+  // No packages needed, just Node. See scripts/build-blog.mjs.
+  "build": {
+    "command": "node scripts/build-blog.mjs",
+    "watch_dir": "posts"
+  },
+
   // The site's files. .assetsignore keeps config and server code from being served.
   "assets": {
     "directory": ".",

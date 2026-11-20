@@ -1,0 +1,208 @@
+/*
+  MichaelOS 98 blog. Used by the shareable pages under /blog/ (made by scripts/build-blog.mjs)
+  and by the Blog windows on the desktop. Colors and fonts match styles.css.
+*/
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/fonts/pixelify-sans-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/fonts/pixelify-sans-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ---------- Post text (shareable pages and desktop windows) ---------- */
+.bp-post {
+  max-width: 68ch;
+  font: 400 1.05rem/1.65 "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+.bp-post h1,
+.bp-post h2,
+.bp-post h3,
+.bp-post h4 {
+  margin: 1.6rem 0 0.5rem;
+  font-family: "Pixelify Sans", "Lucida Console", monospace;
+  line-height: 1.15;
+}
+.bp-post h1 { margin-top: 0; font-size: clamp(1.6rem, 5vw, 2.2rem); }
+.bp-post h2 { font-size: 1.45rem; }
+.bp-post h3 { font-size: 1.2rem; }
+.bp-post h4 { font-size: 1.05rem; }
+.bp-post p,
+.bp-post ul,
+.bp-post ol,
+.bp-post blockquote,
+.bp-post pre,
+.bp-post figure { margin: 0 0 1rem; }
+.bp-post ul,
+.bp-post ol { padding-left: 1.5rem; }
+.bp-post li + li { margin-top: 0.25rem; }
+.bp-date {
+  margin: 0 0 1.25rem !important;
+  color: #6b5634;
+  font: 400 0.95rem/1.4 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-post img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  background: #1d140a;
+  border: 2px solid #1d140a;
+  box-shadow: 4px 4px 0 rgb(29 20 10 / 0.3);
+}
+.bp-post figcaption {
+  margin-top: 0.5rem;
+  color: #6b5634;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.bp-post blockquote {
+  padding: 0.5rem 1rem;
+  border-left: 4px solid #e0892f;
+  background: #f7ecd3;
+}
+.bp-post blockquote > :last-child { margin-bottom: 0; }
+.bp-post code {
+  padding: 0.05rem 0.3rem;
+  background: #f1dfb8;
+  font: 0.9em/1.4 "Lucida Console", Consolas, monospace;
+}
+.bp-post pre {
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  background: #1d140a;
+  color: #5fd35f;
+}
+.bp-post pre code { padding: 0; background: none; color: inherit; }
+.bp-post hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 2px dashed #9b7a48;
+}
+
+/* List of posts */
+.bp-list { margin: 0; padding: 0; list-style: none; }
+.bp-list li { padding: 0.9rem 0; border-bottom: 2px dashed #d9c7a0; }
+.bp-list li:last-child { border-bottom: 0; }
+.bp-list time {
+  display: block;
+  color: #6b5634;
+  font: 400 0.9rem/1.4 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-list a { font: 700 1.2rem/1.3 "Pixelify Sans", "Lucida Console", monospace; }
+.bp-list p { margin: 0.25rem 0 0; }
+
+/* Older / newer links under a post */
+.bp-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 68ch;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #9b7a48;
+  font: 400 0.95rem/1.4 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-pager a:last-child { text-align: right; }
+
+/* ---------- Shareable page: one big Breadpad window on the sunset ---------- */
+body:has(> .bp-win) {
+  min-height: 100vh;
+  margin: 0;
+  padding: clamp(0rem, 3vw, 2.5rem) clamp(0rem, 3vw, 2rem);
+  color: #1d140a;
+  background:
+    radial-gradient(circle at 85% 90%, #ffd84a 0 6rem, transparent 6.1rem) fixed,
+    linear-gradient(to bottom, #2b0f4a 0%, #7b2cbf 38%, #ff8a3d 72%, #ffb35c 100%) fixed;
+  box-sizing: border-box;
+}
+.bp-win * { font-variant-ligatures: none; } /* Pixelify's "fi" looks like an "A" */
+.bp-win a { color: #2f4bff; text-underline-offset: 0.15em; }
+.bp-win a:visited { color: #6a2bb3; }
+.bp-win :focus-visible { outline: 2px dotted #1d140a; outline-offset: 2px; }
+
+.bp-win {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 3px;
+  background: #f1dfb8;
+  box-shadow: inset -1px -1px 0 #1d140a, inset 1px 1px 0 #fff8e6,
+    inset -2px -2px 0 #9b7a48, inset 2px 2px 0 #f1dfb8,
+    8px 8px 0 rgb(29 20 10 / 0.35);
+}
+.bp-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  padding: 0.15rem 0.2rem 0.15rem 0.5rem;
+  background: linear-gradient(90deg, #8c3a12, #e0892f);
+  color: #fffdf6;
+  font: 700 0.95rem/1 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-titlebar span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bp-win .bp-x {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.35rem;
+  background: #f1dfb8;
+  color: #1d140a;
+  font: 700 1rem/1 "Pixelify Sans", "Lucida Console", monospace;
+  text-decoration: none;
+  box-shadow: inset -1px -1px 0 #1d140a, inset 1px 1px 0 #fff8e6, inset -2px -2px 0 #9b7a48;
+}
+.bp-menubar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  padding: 0.3rem 0.5rem;
+  font: 400 0.95rem/1.4 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-win .bp-menubar a { color: #1d140a; }
+.bp-body {
+  display: block;
+  margin: 2px;
+  padding: clamp(1rem, 4vw, 2.25rem);
+  background: #fffdf6;
+  box-shadow: inset 1px 1px 0 #9b7a48, inset -1px -1px 0 #fff8e6,
+    inset 2px 2px 0 #1d140a, inset -2px -2px 0 #f1dfb8;
+}
+.bp-body > h1 {
+  margin: 0 0 0.5rem;
+  font: 700 clamp(1.6rem, 5vw, 2.2rem)/1.15 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-status {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+  font: 400 0.85rem/1.4 "Pixelify Sans", "Lucida Console", monospace;
+}
+.bp-status > * {
+  flex: 1;
+  padding: 0.1rem 0.5rem;
+  box-shadow: inset 1px 1px 0 #9b7a48, inset -1px -1px 0 #fff8e6;
+}
+.bp-win .bp-status a { color: #1d140a; text-align: right; }
+
+@media (max-width: 40rem) {
+  .bp-win { box-shadow: none; }
+}
