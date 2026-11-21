@@ -172,11 +172,11 @@
   }
 
   /* ---------- Icon buttons (desktop + folders) ---------- */
-  function iconButton({ label, iconName, onOpen }) {
+  function iconButton({ label, iconName, onOpen, thumb }) {
     // Allow line breaks only after "_" or before ".ext", so long file names wrap neatly
     const labelEl = el("span", { class: "label" });
     label.split(/(?<=_)|(?=\.[^.]+$)/).forEach((part, i) => { if (i) labelEl.append(el("wbr")); labelEl.append(part); });
-    const b = el("button", { class: "icon-btn", "aria-selected": "false" }, icon(iconName), labelEl);
+    const b = el("button", { class: "icon-btn", "aria-selected": "false" }, thumb ? thumbImg(thumb, iconName) : icon(iconName), labelEl);
     b.addEventListener("click", () => {
       const scope = b.closest("ul");
       scope.querySelectorAll(".icon-btn").forEach((x) => x.setAttribute("aria-selected", x === b ? "true" : "false"));
@@ -185,6 +185,13 @@
     b.addEventListener("dblclick", onOpen);
     b.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); onOpen(); } });
     return b;
+  }
+
+  // Small picture for the Artwork folder; falls back to the pixel icon if it won't load
+  function thumbImg(src, iconName) {
+    const img = el("img", { class: "thumb", src, alt: "", loading: "lazy", decoding: "async" });
+    img.addEventListener("error", () => img.replaceWith(icon(iconName)), { once: true });
+    return img;
   }
 
   /* ---------- Apps ---------- */
@@ -203,6 +210,8 @@
     builds() { folder("builds", "Real-life builds", D.builds, "chip"); },
 
     blog() { openBlog(); },
+
+    artwork() { openGallery(); },
 
     contact() { openContact(); },
 
@@ -413,12 +422,93 @@
     });
   }
 
-  // Links like michaelbarnes.xyz/#blog or /#blog/my-post open the Blog folder or a post
+  // Links like michaelbarnes.xyz/#blog or /#blog/my-post open the Blog folder or a post; /#artwork opens Artwork
   function openFromHash() {
+    if (/^#artwork\/?$/.test(location.hash)) { openGallery(); return true; }
     const m = location.hash.match(/^#blog(?:\/([a-z0-9-]+))?\/?$/);
     if (!m) return false;
     openBlog(m[1]);
     return true;
+  }
+
+  /* ---------- Artwork gallery ---------- */
+  // The list comes from gallery.json, which scripts/build-gallery.mjs makes from images/gallery/ on deploy.
+  let galleryPics = null;
+  function loadGallery() {
+    if (!galleryPics) {
+      galleryPics = fetch("/gallery.json", { cache: "no-cache" })
+        .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .catch((err) => { galleryPics = null; throw err; });
+    }
+    return galleryPics;
+  }
+
+  const artTip = (p) => p.title + (p.dateText ? ` (${p.dateText})` : "");
+
+  function openGallery() {
+    loadGallery().then((pics) => {
+      const body = pics.length
+        ? el("ul", { class: "explorer gallery" }, pics.map((p, i) =>
+            el("li", { title: artTip(p) }, iconButton({ label: p.file, iconName: "image", thumb: p.src, onOpen: () => openArt(pics, i) }))))
+        : el("div", { class: "notepad" }, el("p", { text: "No art yet. Michael is \"letting the paint dry.\"" }));
+      makeWindow("artwork", {
+        title: "Artwork", iconName: "folder", body, width: 40, height: 26,
+        menubar: ["File", "Edit", "View", "Help"],
+        status: [pics.length + (pics.length === 1 ? " picture" : " pictures"), "Newest first"],
+      });
+    }).catch((err) => {
+      console.error("gallery failed to load:", err);
+      popError({ title: "Artwork.exe", text: "Artwork.exe has stopped working. Try again in a minute.", buttons: ["OK"] });
+    });
+  }
+
+  // Bread Viewer: one window ("art") that Prev/Next and the arrow keys flip through
+  let artState = null; // { pics, i }
+  function openArt(pics, i, focusBtn) {
+    artState = { pics, i };
+    const p = pics[i];
+    const n = pics.length;
+    const title = p.file + " - Bread Viewer";
+
+    const img = el("img", { class: "art-img", src: p.src, alt: p.title, decoding: "async" });
+    img.addEventListener("error", () => img.replaceWith(
+      el("div", { class: "photo-missing", role: "img", "aria-label": "Picture missing" },
+        icon("image"),
+        el("span", { text: `Cannot find ${p.file}` }),
+        el("small", { text: "Michael has the picture somewhere. Probably." }))), { once: true });
+
+    const go = (d, which) => openArt(pics, (i + d + n) % n, which);
+    const content = el("div", { class: "viewer" },
+      el("div", { class: "art-stage" }, img),
+      el("div", { class: "art-caption" },
+        el("h3", { text: p.title }),
+        p.dateText ? el("time", { datetime: p.date, text: p.dateText }) : null),
+      el("div", { class: "actions" },
+        el("button", { class: "btn art-prev", "aria-label": "Previous picture", disabled: n < 2, onclick: () => go(-1, "prev"), text: "< Prev" }),
+        el("span", { class: "art-count", text: `${i + 1} of ${n}` }),
+        el("button", { class: "btn art-next", "aria-label": "Next picture", disabled: n < 2, onclick: () => go(1, "next"), text: "Next >" }),
+        el("a", { class: "btn", href: p.src, target: "_blank", rel: "noopener" }, icon("link"), "Open full size")));
+
+    const o = open.get("art");
+    if (o) {
+      o.win.querySelector(".win-body").replaceChildren(content);
+      o.win.querySelector(".titlebar h2").textContent = title;
+      o.task.querySelector("span").textContent = title;
+      o.win.hidden = false;
+      focusWin("art");
+      if (focusBtn) content.querySelector(".art-" + focusBtn).focus({ preventScroll: true });
+      return;
+    }
+    const win = makeWindow("art", {
+      title, iconName: "image", body: content, width: 44, height: 36,
+      menubar: ["File", "Edit", "View", "Help"],
+    });
+    win.addEventListener("keydown", (e) => {
+      if (!artState || artState.pics.length < 2) return;
+      const { pics: ps, i: at } = artState;
+      if (e.key === "ArrowLeft") { e.preventDefault(); openArt(ps, (at - 1 + ps.length) % ps.length); }
+      if (e.key === "ArrowRight") { e.preventDefault(); openArt(ps, (at + 1) % ps.length); }
+    });
   }
 
   /* ---------- Error popups ---------- */
@@ -517,6 +607,7 @@
     { label: "Software projects", iconName: "folder", app: "projects" },
     { label: "Real-life builds", iconName: "folder", app: "builds" },
     { label: "Blog", iconName: "folder", app: "blog" },
+    { label: "Artwork", iconName: "folder", app: "artwork" },
     { label: "Contact", iconName: "mail", app: "contact" },
     { label: "Trash", iconName: "trash", app: "trash" },
     { label: "DO NOT CLICK.exe", iconName: "warn", action: () => popError() },
@@ -622,9 +713,9 @@
     if (!openFromHash()) apps.about();
     window.addEventListener("hashchange", openFromHash);
     // One unsolicited error per visit, once they've had a moment to look around
-    // ...but never while they're writing to Michael or reading a blog post
+    // ...but never while they're writing to Michael, reading a blog post or looking at art
     setTimeout(() => {
-      const busy = [...open].some(([k, o]) => (k === "contact" || k.startsWith("blog:")) && !o.win.hidden);
+      const busy = [...open].some(([k, o]) => (k === "contact" || k === "art" || k.startsWith("blog:")) && !o.win.hidden);
       if (shutdownEl.hidden && !busy) popError(D.errors[0]);
     }, 25000);
   }

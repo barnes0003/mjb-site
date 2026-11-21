@@ -4,7 +4,7 @@
 
 # mjb-site
 
-MichaelOS 98: the personal site at michaelbarnes.xyz. Static files with no build step, served by a Cloudflare Worker
+MichaelOS 98: the personal site at michaelbarnes.xyz. Static files (plus small blog and gallery build steps), served by a Cloudflare Worker
 (`mjb-site`) that auto-deploys on every push to `main`.
 
 ## Files
@@ -16,9 +16,11 @@ MichaelOS 98: the personal site at michaelbarnes.xyz. Static files with no build
 - `posts/` — blog posts in Markdown. Write here.
 - `images/blog/` — pictures for blog posts.
 - `scripts/build-blog.mjs` — turns `posts/` into `blog/` on every deploy. `blog/` is generated: never edit it, never commit it.
+- `images/gallery/` — artwork for the desktop's Artwork folder. Drop pictures here.
+- `scripts/build-gallery.mjs` — lists `images/gallery/` into `gallery.json` on every deploy. `gallery.json` is generated: never edit it, never commit it.
 - `_headers` — security headers (served by the Worker).
 - `worker/index.js` — the only server code: handles `/api/contact`, checks Turnstile, and emails the message.
-- `wrangler.jsonc` — Worker settings: the blog build step, the email binding (locked to Michael's verified Gmail) and the site folder.
+- `wrangler.jsonc` — Worker settings: the blog and gallery build steps, the email binding (locked to Michael's verified Gmail) and the site folder.
 - `.assetsignore` — files that must never be served as web pages (config, worker code, this README).
 
 ## Contact form
@@ -60,9 +62,23 @@ Drop a photo at `images/projects/<id>.jpg` or `images/builds/<id>.jpg`, using th
 and it shows up automatically. Anything without a photo gets a "Cannot find" placeholder.
 For a different name or format, add `photo: "images/builds/whatever.png"` to that item.
 
+## Artwork gallery
+
+1. Put pictures in `images/gallery/` (jpg, jpeg, png, gif, webp or avif). About 1200–1600 px on the long side,
+   a few hundred KB each. The build warns about anything over 1 MB.
+2. Name them `YYYY-MM-DD-short-name.jpg`, e.g. `2026-11-21-sunset-toast.jpg`. The date is optional:
+   dated pictures show first (newest first), then undated ones A to Z. The rest of the name is the title
+   ("Sunset toast"). Lowercase names are best.
+3. Commit and push. The deploy lists the folder into `gallery.json` and the Artwork folder shows them.
+
+Each picture opens in the Bread Viewer (Prev/Next, arrow keys, Open full size). `michaelbarnes.xyz/#artwork`
+opens the Artwork folder. A date that doesn't exist (like `2026-13-40`) or two pictures that would show with the
+same name stops the deploy on purpose; the error is in the Cloudflare build log.
+
 ## Run it locally
 
 Build the blog first (needs Node; `--drafts` includes draft posts): `node scripts/build-blog.mjs --drafts`
+and the gallery list: `node scripts/build-gallery.mjs` (run it again after adding or renaming pictures).
 
 Then any static server works, for example `python -m http.server 8000`, then open http://localhost:8000.
 The contact form can't send from there (no Worker), but everything else works.
